@@ -1,0 +1,4 @@
+.venv/
+*.xml
+images/
+__pycache__/

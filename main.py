@@ -15,6 +15,10 @@ usable_pairs = build_usable_pairs(kanji_dict, kanjivg_root)
 print("Total usable pairs:", len(usable_pairs))
 print("Sample:", usable_pairs[0])
 
-first_pair = usable_pairs[0]
-img = render_kanji_svg_to_png(first_pair["kanjivg_element"], size=1080)
-img.save(f"images/{first_pair['char']}.png")
+# Batch render first 10 Kanji
+for pair in usable_pairs[:10]:
+    char = pair["char"]
+    kanji_elem = pair["kanjivg_element"]
+    img = render_kanji_svg_to_png(kanji_elem, 1080)
+    img.save(f"images/{char}.png")
+    print(f"Saved {char}.png")

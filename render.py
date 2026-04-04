@@ -5,10 +5,9 @@ import io
 
 
 def collect_paths(elem):
-    """Recursively collect all <path> elements, stripping namespaces."""
     paths = []
     for child in elem:
-        tag = child.tag.split("}")[-1]  # remove namespace
+        tag = child.tag.split("}")[-1]
         if tag == "path":
             paths.append(child)
         elif tag == "g":
@@ -17,54 +16,38 @@ def collect_paths(elem):
 
 
 def render_kanji_svg_to_png(kanji_element, size=128):
-    """
-    Convert a KanjiVG <kanji> element to a high-quality grayscale PNG.
-    - White background
-    - Smooth strokes
-    - Antialiased when resizing
-    """
-    kanji_copy = ET.fromstring(ET.tostring(kanji_element))
+    """Render KanjiVG element to PNG with smooth strokes at higher resolution."""
 
-    # Strip namespaces
     def strip_ns(elem):
         elem.tag = elem.tag.split("}")[-1]
         for c in elem:
             strip_ns(c)
 
+    kanji_copy = ET.fromstring(ET.tostring(kanji_element))
     strip_ns(kanji_copy)
 
-    # Collect all <path> elements
     paths = collect_paths(kanji_copy)
     if not paths:
-        raise ValueError("No paths found in kanji element!")
+        raise ValueError("No paths found!")
 
-    # Build SVG content
-    svg_paths = ""
-    for p in paths:
-        d = p.attrib.get("d")
-        if d:
-            svg_paths += (
-                f'<path d="{d}" stroke="#000000" fill="none" stroke-width="2"/>'
-            )
+    svg_content = "".join(
+        f'<path d="{p.attrib["d"]}" stroke="#000" fill="none" stroke-width="2" '
+        f'stroke-linecap="round" stroke-linejoin="round"/>'
+        for p in paths
+    )
 
-    # Full SVG
+    # Render large internal canvas
+    internal_size = 512
     svg_data = f"""
-    <svg xmlns="http://www.w3.org/2000/svg" width="109" height="109" viewBox="0 0 109 109">
-        <rect width="109" height="109" fill="white"/>
-        {svg_paths}
+    <svg xmlns="http://www.w3.org/2000/svg" width="{internal_size}" height="{internal_size}" viewBox="0 0 109 109">
+        <rect width="100%" height="100%" fill="white"/>
+        {svg_content}
     </svg>
     """
 
-    # Render at higher resolution for smoothness
-    high_res = 1080
-    png_bytes = cairosvg.svg2png(
-        bytestring=svg_data.encode("utf-8"),
-        output_width=high_res,
-        output_height=high_res,
-    )
-
-    # Open with PIL, convert to grayscale, downscale with antialiasing
+    png_bytes = cairosvg.svg2png(bytestring=svg_data.encode("utf-8"))
     img = Image.open(io.BytesIO(png_bytes)).convert("L")
-    img = img.resize((size, size), Image.Resampling.LANCZOS)
 
+    # Resize down to target size with high-quality filter
+    img = img.resize((size, size), Image.LANCZOS)
     return img

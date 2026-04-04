@@ -2,3 +2,17 @@
 *.xml
 images/
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite
+*.log
+*.bak
+*.tmp
+*.swp
+.DS_Store
+.idea/
+.vscode/
+
+__pycache__/

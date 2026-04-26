@@ -36,6 +36,6 @@ def build_dataset(pairs, limit=None):
         meanings = clean_meanings(pair["meanings"])
         text = " ".join(meanings)
 
-        dataset.append({"image": f"images/{char}.png", "text": text})
+        dataset.append({"image": f"{char}.png", "text": text})
 
     return dataset

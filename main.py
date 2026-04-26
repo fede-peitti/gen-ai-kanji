@@ -8,8 +8,11 @@ BATCH_SIZE = None  # Set to None to process all, or specify a number for testing
 IMAGE_SIZE = 256
 
 
+os.makedirs("dataset", exist_ok=True)
+
+
 def render_images(pairs, limit=None):
-    os.makedirs("images", exist_ok=True)
+    os.makedirs("dataset/images", exist_ok=True)
 
     subset = pairs if limit is None else pairs[:limit]
 
@@ -18,7 +21,7 @@ def render_images(pairs, limit=None):
         kanji_elem = pair["kanjivg_element"]
 
         img = render_kanji_svg_to_png(kanji_elem, IMAGE_SIZE)
-        img.save(f"images/{char}.png")
+        img.save(f"dataset/images/{char}.png")
 
     print(f"Rendered {len(subset)} images")
 
@@ -42,7 +45,7 @@ for item in dataset[:5]:
     print(item)
 
 # Save dataset
-with open("dataset.json", "w", encoding="utf-8") as f:
+with open("dataset/dataset.json", "w", encoding="utf-8") as f:
     json.dump(dataset, f, ensure_ascii=False, indent=2)
 
 print("Saved dataset.json")
